@@ -41,9 +41,7 @@ class RedisChatHistory(Redis):
                 self.json().arrappend(user_id, f"$.{chat_id}.messages", assistant_message)
             else:
                 self.json().set(user_id, f"$.{chat_id}", {})
-                self.json().set(
-                    user_id, f"$.{chat_id}.messages", [user_message, assistant_message]
-                )
+                self.json().set(user_id, f"$.{chat_id}.messages", [user_message, assistant_message])
                 self.json().set(user_id, f"$.{chat_id}.created", round(time.time()))
         else:
             self.json().set(
@@ -72,7 +70,7 @@ class RedisChatHistory(Redis):
             if chat_id:
                 chat_history = self.json().get(user_id, f".{chat_id}")
             else:
-                chat_history = self.json().get(user_id) 
+                chat_history = self.json().get(user_id)
         else:
             chat_history = {}
 

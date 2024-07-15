@@ -1,9 +1,8 @@
 from typing import List, Dict
 
 from qdrant_client.http import models as rest
-from nltk.corpus import stopwords
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
-from langchain_community.vectorstores import Qdrant
+from langchain_qdrant import Qdrant
 from fastapi import HTTPException
 
 
@@ -37,7 +36,6 @@ def file_to_chunk(client, collection: str, file_ids=List[str]) -> List[Dict]:
     ]
 
     return data
-
 
 def get_all_collections(vectorstore, api_key: str):
     """

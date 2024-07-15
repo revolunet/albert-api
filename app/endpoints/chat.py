@@ -35,7 +35,7 @@ async def chat_completions(
     except KeyError:
         raise HTTPException(status_code=404, detail="Model not found.")
 
-    # retrieve chat history
+    # chat history
     if request["user"]:
         if chat_id:
             chat_history = clients["chathistory"].get_chat_history(
@@ -67,10 +67,11 @@ async def chat_completions(
     # non stream case
     if not request["stream"]:
         response = client.chat.completions.create(**request)
-
+        
         # add messages to chat history
         if request["user"]:
             response.id = chat_id
+
             clients["chathistory"].add_messages(
                 user_id=request["user"],
                 chat_id=chat_id,
@@ -123,6 +124,6 @@ async def chat_history(
     Get chat history of a user.
     """
     chat_history = clients["chathistory"].get_chat_history(user_id=user, chat_id=id)
-
+    
     # @TODO: add pydantic model for chat history
     return chat_history

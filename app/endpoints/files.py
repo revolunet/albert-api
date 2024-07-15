@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 from fastapi import APIRouter, Response, Security, UploadFile, HTTPException
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from botocore.exceptions import ClientError
-from langchain_community.vectorstores import Qdrant as VectorStore
+from langchain_qdrant import Qdrant as VectorStore
 from qdrant_client.http import models as rest
 
 from app.schemas.files import File, FileResponse, FileUploadResponse
@@ -161,7 +161,7 @@ async def upload_files(
 
         try:
             # create vectors from documents
-            db = await VectorStore.afrom_documents(
+            await VectorStore.afrom_documents(
                 documents=documents,
                 embedding=embedding,
                 collection_name=collection,

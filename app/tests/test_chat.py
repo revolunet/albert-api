@@ -8,7 +8,6 @@ user = "pytest"
 
 def test_chat_completions():
     with TestClient(app) as client:
-
         data = {
             "model": model,
             "messages": [{"role": "user", "content": prompt}],
@@ -17,4 +16,3 @@ def test_chat_completions():
         }
         response = client.post("/v1/chat/completions", json=data)
         assert response.status_code == 200
-

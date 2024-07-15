@@ -52,7 +52,13 @@ Les tools sont une fonctionnalité définie OpenAI que l'on surcharge dans le ca
   pip install .
   ```
 
-3. Créez un fichier *config.yml* à la racine du repository sur la base du fichier d'exemple *[config.example.yml](./config.example.yml)*
+  Installez les stopwords de 
+  
+  ```bash
+  python -m nltk.downloader stopwords
+  ```
+
+1. Créez un fichier *config.yml* à la racine du repository sur la base du fichier d'exemple *[config.example.yml](./config.example.yml)*
 
   Si vous souhaitez configurer les accès aux modèles et aux bases de données, consultez la [Configuration](#configuration).
 

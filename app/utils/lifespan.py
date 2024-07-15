@@ -62,6 +62,12 @@ async def lifespan(app: FastAPI):
 
         clients["chathistory"] = RedisChatHistory(**CONFIG.databases.chathistory.args)
 
+        clients["chathistory"].add_messages(
+            user_id="123",
+            chat_id="123",
+            user_message="hello",
+            assistant_message={"role": "assistant", "content": "content[0]"},
+        )
     # vectors
     if CONFIG.databases.vectors.type == "qdrant":
         from qdrant_client import QdrantClient
