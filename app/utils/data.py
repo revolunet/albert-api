@@ -57,15 +57,16 @@ def get_all_collections(vectorstore, api_key: str):
 
 def search_multiple_collections(
     vectorstore, embeddings, prompt: str, collections: list, k: int = 4, filter: dict = None
-):
+):  
+
     docs = []
     for collection in collections:
-        vectorstore = Qdrant(
+        lanchain_qdrant = Qdrant(
             client=vectorstore,
             embeddings=embeddings,
             collection_name=collection,
         )
-        docs.extend(vectorstore.similarity_search_with_score(prompt, k=k, filter=filter))
+        docs.extend(lanchain_qdrant.similarity_search_with_score(prompt, k=k, filter=filter))
     
     # sort by similarity score and get top k
     docs = sorted(docs, key=lambda x: x[1], reverse=True)[:k]

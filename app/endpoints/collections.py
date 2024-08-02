@@ -32,7 +32,7 @@ def collections(api_key: str = Security(check_api_key)) -> CollectionResponse:
             collections.append(
                 {
                     "object": "collection",
-                    "name": collection.name.replace("public-", ""),
+                    "name": collection.name,
                     "type": "public",
                 }
             )
