@@ -3,28 +3,31 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_validator
 
 from app.schemas.chunks import Chunk
-from app.utils.variables import INTERNET_COLLECTION_DISPLAY_ID, HYBRID_SEARCH_TYPE, LEXICAL_SEARCH_TYPE, SEMANTIC_SEARCH_TYPE
+from app.utils.variables import DEFAULT_RAG_K, INTERNET_COLLECTION_DISPLAY_ID, HYBRID_SEARCH_TYPE, LEXICAL_SEARCH_TYPE, SEMANTIC_SEARCH_TYPE
 
 
-class SearchRequest(BaseModel):
-    prompt: str
-    collections: List[Union[UUID, Literal[INTERNET_COLLECTION_DISPLAY_ID]]]
+class RagParameters(BaseModel):
+    collections: List[Union[UUID, Literal[INTERNET_COLLECTION_DISPLAY_ID]]] = Field(
+        description="List of collections ID to search. If not provided, search on all collections.", default=[]
+    )
     rff_k: int = Field(default=20, description="k constant in RFF algorithm")
-    k: int = Field(gt=0, description="Number of results to return")
+    k: int = Field(gt=0, description="Number of results to return", default=DEFAULT_RAG_K)
     method: Literal[HYBRID_SEARCH_TYPE, LEXICAL_SEARCH_TYPE, SEMANTIC_SEARCH_TYPE] = Field(default=SEMANTIC_SEARCH_TYPE)
-    score_threshold: Optional[float] = Field(0.0, ge=0.0, le=1.0, description="Score of cosine similarity threshold for filtering results")
+    score_threshold: Optional[float] = Field(None, ge=0.0, le=1.0, description="Score of cosine similarity threshold for filtering results")
+
+    @field_validator("collections", mode="before")
+    def convert_to_string(cls, collections) -> List[str]:
+        return list(set(str(collection) for collection in collections))
+
+
+class SearchRequest(RagParameters):
+    prompt: str = Field(description="Prompt related to the search")
 
     @field_validator("prompt")
-    def blank_string(prompt):
+    def blank_string(prompt) -> str:
         if prompt.strip() == "":
             raise ValueError("Prompt cannot be empty")
         return prompt
-
-    @field_validator("collections")
-    def convert_to_string(cls, collections):
-        if collections is None:
-            return []
-        return list(set(str(collection) for collection in collections))
 
 
 class Search(BaseModel):

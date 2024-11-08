@@ -9,7 +9,12 @@ from pydantic import BaseModel, Field, model_validator
 
 from app.utils.exceptions import ContextLengthExceededException, MaxTokensExceededException, WrongModelTypeException
 from app.utils.lifespan import clients
-from app.utils.variables import LANGUAGE_MODEL_TYPE
+from app.utils.variables import LANGUAGE_MODEL_TYPE, DEFAULT_RAG_TEMPLATE
+from app.schemas.search import RagParameters
+
+
+class ChatRagParameters(RagParameters):
+    template: str = Field(description="Template to use for the RAG query", default=DEFAULT_RAG_TEMPLATE)
 
 
 class ChatCompletionRequest(BaseModel):
@@ -31,20 +36,25 @@ class ChatCompletionRequest(BaseModel):
     top_k: int = -1
     min_p: float = 0.0
 
+    # Albert additionnal fields
+    rag: bool = False
+    rag_parameters: ChatRagParameters = Field(default_factory=ChatRagParameters)
+
     class ConfigDict:
         extra = "allow"
 
     @model_validator(mode="after")
-    def validate_model(cls, values):
-        if clients.models[values.model].type != LANGUAGE_MODEL_TYPE:
+    def validate_model(cls, chat_completion_request):
+        if clients.models[chat_completion_request.model].type != LANGUAGE_MODEL_TYPE:
             raise WrongModelTypeException()
 
-        if not clients.models[values.model].check_context_length(messages=values.messages):
+        if "messages" in chat_completion_request and not clients.models[chat_completion_request.model].check_context_length(messages=chat_completion_request.messages):
             raise ContextLengthExceededException()
 
-        if values.max_tokens is not None and values.max_tokens > clients.models[values.model].max_context_length:
+        if chat_completion_request.max_tokens is not None and chat_completion_request.max_tokens > clients.models[chat_completion_request.model].max_context_length:
             raise MaxTokensExceededException()
-        return values
+
+        return chat_completion_request
 
 
 class ChatCompletion(ChatCompletion):

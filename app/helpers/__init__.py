@@ -4,6 +4,8 @@ from ._contentsizelimitmiddleware import ContentSizeLimitMiddleware
 from ._fileuploader import FileUploader
 from ._internetclient import InternetClient
 from ._modelclients import ModelClients
+from ._search import Search
 from .searchclients import SearchClient
 
-__all__ = ["AuthenticationClient", "ClientsManager", "ContentSizeLimitMiddleware", "FileUploader", "InternetClient", "ModelClients", "SearchClient"]
+
+__all__ = ["AuthenticationClient", "ClientsManager", "ContentSizeLimitMiddleware", "FileUploader", "InternetClient", "ModelClients", "Search", "SearchClient"]
