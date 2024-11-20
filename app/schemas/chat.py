@@ -7,10 +7,11 @@ from openai.types.chat import (
 )
 from pydantic import BaseModel, Field, model_validator
 
+from app.schemas.chunks import Chunk
+from app.schemas.search import RagParameters
 from app.utils.exceptions import ContextLengthExceededException, MaxTokensExceededException, WrongModelTypeException
 from app.utils.lifespan import clients
-from app.utils.variables import LANGUAGE_MODEL_TYPE, DEFAULT_RAG_TEMPLATE
-from app.schemas.search import RagParameters
+from app.utils.variables import DEFAULT_RAG_TEMPLATE, LANGUAGE_MODEL_TYPE
 
 
 class ChatRagParameters(RagParameters):
@@ -18,7 +19,7 @@ class ChatRagParameters(RagParameters):
 
 
 class ChatCompletionRequest(BaseModel):
-    # See https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py
+    # see https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py
     messages: List[ChatCompletionMessageParam]
     model: str
     stream: Optional[Literal[True, False]] = False
@@ -36,19 +37,19 @@ class ChatCompletionRequest(BaseModel):
     top_k: int = -1
     min_p: float = 0.0
 
-    # Albert additionnal fields
-    rag: bool = False
-    rag_parameters: ChatRagParameters = Field(default_factory=ChatRagParameters)
-
     class ConfigDict:
         extra = "allow"
+
+    # albert additionnal fields
+    rag: bool = False
+    rag_parameters: ChatRagParameters = Field(default_factory=ChatRagParameters)
 
     @model_validator(mode="after")
     def validate_model(cls, chat_completion_request):
         if clients.models[chat_completion_request.model].type != LANGUAGE_MODEL_TYPE:
             raise WrongModelTypeException()
 
-        if "messages" in chat_completion_request and not clients.models[chat_completion_request.model].check_context_length(messages=chat_completion_request.messages):
+        if chat_completion_request.messages and not clients.models[chat_completion_request.model].check_context_length(messages=chat_completion_request.messages):
             raise ContextLengthExceededException()
 
         if chat_completion_request.max_tokens is not None and chat_completion_request.max_tokens > clients.models[chat_completion_request.model].max_context_length:
@@ -58,8 +59,8 @@ class ChatCompletionRequest(BaseModel):
 
 
 class ChatCompletion(ChatCompletion):
-    pass
+    chunks: List[Chunk] = []
 
 
 class ChatCompletionChunk(ChatCompletionChunk):
-    pass
+    chunks: List[Chunk] = []
