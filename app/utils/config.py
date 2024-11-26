@@ -15,6 +15,7 @@ CONFIG_FILE = os.getenv("CONFIG_FILE", "config.yml")
 assert os.path.exists(CONFIG_FILE), f"error: configuration file {CONFIG_FILE} not found"
 logger.info(f"loading configuration file: {CONFIG_FILE}")
 CONFIG = Config(**yaml.safe_load(open(CONFIG_FILE, "r")))
+MAX_CONTENT_SIZE = os.getenv("MAX_CONTENT_SIZE", 20 * 1024 * 1024)  # 20MB
 
 # Metadata
 APP_CONTACT_URL = os.getenv("APP_CONTACT_URL")
